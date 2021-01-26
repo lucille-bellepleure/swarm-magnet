@@ -1,0 +1,22 @@
+{
+  "name": "swarm-magnet",
+  "version": "0.0.1",
+  "description": "API endpoint which accepts magnet files and returns a Swarm hash.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Michelle Plur",
+  "license": "ISC",
+  "dependencies": {
+    "@erebos/bzz-fs": "^0.13.0",
+    "@erebos/bzz-node": "^0.13.0",
+    "@erebos/swarm-node": "^0.13.0",
+    "axios": "^0.21.1",
+    "bee-client": "^0.0.1",
+    "cli-progress": "^3.8.2",
+    "express": "^4.17.1",
+    "queue": "^6.0.1",
+    "webtorrent": "^0.108.6"
+  }
+}
