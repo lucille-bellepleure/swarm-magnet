@@ -10,11 +10,11 @@ var results = []
 var express = require('express')
 const bodyParser = require('body-parser');
 const cliProgress = require('cli-progress');
-var Bee = require("@ethersphere/bee-js");
+var { Bee } = require("@ethersphere/bee-js");
 const port = 3000
 const app = express();
 
-bee = new Bee.Bee("http://localhost:1633");
+bee = new Bee("http://localhost:1633");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -30,9 +30,6 @@ app.post('/magnet', async (req, res) => {
 
 app.listen(port, () => console.log(`Started server at http://localhost:` + port));
 
-async function fetchKeyword(keyword) {
-    let url = 'https://chill.institute/api/v1/search?keyword=${searchStr}&indexer=yts'
-}
 
 function downloadMagnet(magnetURI, callback) {
     const bar1 = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
@@ -51,13 +48,14 @@ function downloadMagnet(magnetURI, callback) {
         })
         torrent.on('done', async function () {
             console.log(torrent.name, " done")
+            var htmlHeading = '<h3>Magnet2Swarm</h3><h1>' + torrent.name + '</h1>'
             torrent.files.forEach(file => {
                 var nameArr = file.path.split('/')
                 nameArr.shift()
                 var tidy = nameArr.join('/')
                 contentArray.push(`<a href="` + tidy + `">` + tidy + `</a></br>`)
             })
-            fs.writeFile("swop/" + torrent.name + "/index.html", contentArray.join('\n'), function (err) {
+            fs.writeFile("swop/" + torrent.name + "/index.html", htmlHeading + contentArray.join('\n'), function (err) {
                 if (err) {
                     return console.log(err);
                 }
