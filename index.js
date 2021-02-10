@@ -19,6 +19,7 @@ bee = new Bee.Bee("http://localhost:1633");
 async function addBee(dirname) {
     try {
         const dirHash = await bee.uploadFilesFromDirectory("./swop/" + dirname, true);
+        console.log(dirHash)
         return dirHash
     } catch (error) {
         console.log(error)
@@ -46,7 +47,6 @@ app.listen(port, () => console.log(`Started server at http://localhost!`));
 async function downloadMagnet(magnetURI) {
     const bar1 = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
     bar1.start(1, 0);
-
 
     client.add(magnetURI, { path: './swop' }, function (torrent) {
         torrent.on('metadata', function (torrent) {
