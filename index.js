@@ -16,6 +16,59 @@ const app = express();
 
 bee = new Bee.Bee("http://localhost:1633");
 
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.post('/magnet', async (req, res) => {
+    const magnet = req.body.magnet
+    downloadMagnet(magnet, async function (dirName) {
+        console.log(dirName)
+        const swarmHash = await addBee(dirName)
+        res.send('https://gateway.ethswarm.org/bzz/' + swarmHash + '/index.html')
+    })
+
+});
+
+app.listen(port, () => console.log(`Started server at http://localhost:` + port));
+
+async function fetchKeyword(keyword) {
+    let url = 'https://chill.institute/api/v1/search?keyword=${searchStr}&indexer=yts'
+}
+
+function downloadMagnet(magnetURI, callback) {
+    const bar1 = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+    bar1.start(1, 0);
+    const contentArray = [];
+    client.add(magnetURI, { path: './swop' }, function (torrent) {
+        torrent.on('metadata', function (torrent) {
+            console.log('torrent metadata', torrent)
+            console.log('adding: ', torrent.name)
+        })
+        torrent.on('ready', function (torrent) {
+            console.log('torrent ready', torrent)
+        })
+        torrent.on('download', function (bytes) {
+            bar1.update(torrent.progress, { filename: torrent.name });
+        })
+        torrent.on('done', async function () {
+            console.log(torrent.name, " done")
+            torrent.files.forEach(file => {
+                var nameArr = file.path.split('/')
+                nameArr.shift()
+                var tidy = nameArr.join('/')
+                contentArray.push(`<a href="` + tidy + `">` + tidy + `</a></br>`)
+            })
+            fs.writeFile("swop/" + torrent.name + "/index.html", contentArray.join('\n'), function (err) {
+                if (err) {
+                    return console.log(err);
+                }
+                console.log("The file was saved!");
+            });
+            callback(torrent.name)
+        })
+    })
+
+}
+
 async function addBee(dirname) {
     try {
         const dirHash = await bee.uploadFilesFromDirectory("./swop/" + dirname, true);
@@ -34,35 +87,3 @@ async function readFile(filePath) {
         console.error(`Got an error trying to read the file: ${error.message}`);
     }
 }
-
-app.use(bodyParser.urlencoded({ extended: true }));
-
-app.post('/magnet', (req, res) => {
-    downloadMagnet(req.body.magnet)
-    res.sendStatus(200);
-});
-
-app.listen(port, () => console.log(`Started server at http://localhost!`));
-
-async function downloadMagnet(magnetURI) {
-    const bar1 = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
-    bar1.start(1, 0);
-
-    client.add(magnetURI, { path: './swop' }, function (torrent) {
-        torrent.on('metadata', function (torrent) {
-            console.log('torrent metadata', torrent)
-            console.log('adding: ', torrent.name)
-        })
-        torrent.on('ready', function (torrent) { console.log('torrent ready', torrent) })
-        torrent.on('download', function (bytes) {
-
-            bar1.update(torrent.progress, { filename: torrent.name });
-        })
-        torrent.on('done', function () {
-            console.log(torrent.name, " done")
-            // add to swarm 
-            addBee(torrent.name).then(fileHash => console.log(fileHash))
-        })
-    })
-}
-
