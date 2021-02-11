@@ -23,6 +23,7 @@ app.post('/magnet', async (req, res) => {
     downloadMagnet(magnet, async function (dirName) {
         console.log(dirName)
         const swarmHash = await addBee(dirName)
+        const removeDir = await removeMagnet(dirName)
         res.send('https://gateway.ethswarm.org/bzz/' + swarmHash + '/index.html')
     })
 
@@ -55,7 +56,7 @@ function downloadMagnet(magnetURI, callback) {
                 var tidy = nameArr.join('/')
                 contentArray.push(`<a href="` + tidy + `">` + tidy + `</a></br>`)
             })
-            fs.writeFile("swop/" + torrent.name + "/index.html", htmlHeading + contentArray.join('\n'), function (err) {
+            fs.writeFile("./swop/" + torrent.name + "/index.html", htmlHeading + contentArray.join('\n'), function (err) {
                 if (err) {
                     return console.log(err);
                 }
@@ -83,5 +84,14 @@ async function readFile(filePath) {
         console.log(data.toString());
     } catch (error) {
         console.error(`Got an error trying to read the file: ${error.message}`);
+    }
+}
+
+async function removeMagnet(dirName) {
+    try {
+        fs.rmdir('./swop/' + dirName, { recursive: true })
+        return true
+    } catch (error) {
+        return error
     }
 }
