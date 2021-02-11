@@ -14,7 +14,7 @@ var { Bee } = require("@ethersphere/bee-js");
 const port = 3000
 const app = express();
 
-bee = new Bee("http://localhost:1633");
+bee = new Bee("https://gateway.ethswarm.org");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
