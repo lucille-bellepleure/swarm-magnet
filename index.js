@@ -29,7 +29,7 @@ app.post('/magnet', async (req, res) => {
 
 });
 
-app.listen(port, () => console.log(`Started server at http://localhost:` + port));
+app.listen(process.env.PORT || port, () => console.log(`Started server at http://localhost:` + port));
 
 
 function downloadMagnet(magnetURI, callback) {
